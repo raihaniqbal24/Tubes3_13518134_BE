@@ -1,15 +1,15 @@
 FROM node:alpine
 
-RUN mkdir -p /usr/src/node-app && chown -R node:node /usr/src/node-app
+WORKDIR /app
 
-WORKDIR /usr/src/node-app
+COPY package.json .
+RUN npm install --omit=dev
 
-COPY package.json yarn.lock ./
+COPY . .
 
-USER node
+RUN npx sequelize db:migrate
 
-RUN yarn install --pure-lockfile
+RUN adduser -D restapi
+USER restapi
 
-COPY --chown=node:node . .
-
-EXPOSE 3000
+CMD npm start $PORT
