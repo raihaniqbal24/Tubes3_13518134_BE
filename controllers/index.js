@@ -1,2 +1,1 @@
-module.exports.bmController = require('./bm.controller');
-module.exports.kmpController = require('./kmp.controller');
+module.exports.chadgptController = require('./chadgpt.controller');

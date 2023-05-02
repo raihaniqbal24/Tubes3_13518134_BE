@@ -32,14 +32,11 @@ const getQuestion = async (quest) => {
   const question = await Dictionary.findByPk(quest, {
     attributes: ['question', 'answer'],
   });
-  if (!question) {
-    throw new ApiError(status.NOT_FOUND, 'Oops! Data QnA tidak ditemukan.');
-  }
   return question;
 };
 
-const updateQuestion = async (question, answer) => {
-  const count = await Dictionary.update(answer, {
+const updateQuestion = async (question, data) => {
+  const count = await Dictionary.update(data, {
     where: {
       question,
     },

@@ -12,9 +12,16 @@ const db = require('../database/models');
 const { Dictionary } = db;
 
 const createQnA = asyncWrapper(async (req, res) => {
+  const { question, answer } = req.body;
+  const isExist = await appService.getQuestion(question);
   try {
-    const qna = await appService.createQuestion(req.body);
-    res.status(status.CREATED).json(qna);
+    if (!isExist) {
+      const qna = await appService.createQuestion(req.body);
+      res.status(status.CREATED).json(qna);
+    } else {
+      const result = await appService.updateQuestion(question, req.body);
+      res.json(result);
+    }
   } catch (err) {
     sequelizeErrorHandler(err);
   }
@@ -37,18 +44,23 @@ const getAllQnAs = asyncWrapper(async (_req, res) => {
 
 const getAnswerByQuestion = asyncWrapper(async (req, res) => {
   const { question } = req.body;
-  const user = await appService.getQuestion(question);
-  res.json(user);
-});
-
-const updateQnA = asyncWrapper(async (req, res) => {
-  const result = await appService.updateQuestion(req.body);
-  res.json(result);
+  const answer = await appService.getQuestion(question);
+  res.json(answer);
 });
 
 const deleteQnA = asyncWrapper(async (req, res) => {
-  const result = await appService.deleteQuestion(req.body);
-  res.json(result);
+  try {
+    const { question } = req.body;
+    const isExist = await appService.getQuestion(question);
+    if (isExist) {
+      const result = await appService.deleteQuestion(question);
+      res.status(status.CREATED).json(req.body);
+    } else {
+      res.json(null);
+    }
+  } catch (err) {
+    sequelizeErrorHandler(err);
+  }
 });
 
 module.exports = {
@@ -57,6 +69,5 @@ module.exports = {
   getBM,
   getAllQnAs,
   getAnswerByQuestion,
-  updateQnA,
   deleteQnA,
 };
