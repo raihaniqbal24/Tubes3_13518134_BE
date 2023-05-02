@@ -16,6 +16,8 @@ router
     chadgptController.getAnswerByQuestion,
   );
 
+router.route('/all').get(chadgptController.getAllQnAs);
+
 router
   .route('/question/delete')
   .post(validate(chadgptValidator.deleteQuestion), chadgptController.deleteQnA);

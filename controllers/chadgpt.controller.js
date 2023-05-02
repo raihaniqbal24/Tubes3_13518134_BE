@@ -2,17 +2,17 @@ const status = require('http-status');
 // const moment = require('moment');
 // const config = require('../config/config');
 const asyncWrapper = require('../utils/asyncWrapper');
-const ApiError = require('../utils/ApiError');
+// const ApiError = require('../utils/ApiError');
 const appService = require('../services/app.service');
 const kmpService = require('../services/kmp.service');
 const bmService = require('../services/bm.service');
 const { sequelizeErrorHandler } = require('../utils/sequelizeErrorHandler');
-const db = require('../database/models');
+// const db = require('../database/models');
 
-const { Dictionary } = db;
+// const { Dictionary } = db;
 
 const createQnA = asyncWrapper(async (req, res) => {
-  const { question, answer } = req.body;
+  const { question } = req.body;
   const isExist = await appService.getQuestion(question);
   try {
     if (!isExist) {
@@ -27,14 +27,54 @@ const createQnA = asyncWrapper(async (req, res) => {
   }
 });
 
-const getKMP = asyncWrapper(async (req, res) => {
-  const getTransaction = await appService.getAllQuestions();
-  res.json(getTransaction);
-});
+const askQuestion = asyncWrapper(async (req, res) => {
+  const data = await appService.getAllQuestions();
+  const { question } = req.body;
 
-const getBM = asyncWrapper(async (req, res) => {
-  const getTransaction = await appService.getAllQuestions();
-  res.json(getTransaction);
+  // TODO: parse question buat nentuin pake apa
+  const whatToDo = question;
+  let result;
+
+  switch (whatToDo) {
+    case 'kmp':
+      // KMP Search
+      for (let i = 1; i <= data.length; i += 1) {
+        const exist = kmpService.KMPSearch(data[i], question);
+        if (exist) {
+          res.json(data[i]);
+          break;
+        }
+      }
+      break;
+    case 'bm':
+      // BM Search
+      for (let i = 1; i <= data.length; i += 1) {
+        const exist = bmService.BMSearch(data[i], question);
+        if (exist) {
+          res.json(data[i]);
+          break;
+        }
+      }
+      break;
+    case 'calculation':
+      result = appService.calculateNumber(question);
+      res.json(result);
+      break;
+    case 'dayFromDate':
+      result = appService.getDayFromDate(question);
+      res.json(result);
+      break;
+    default:
+      // KMP Search
+      for (let i = 1; i <= data.length; i += 1) {
+        const exist = kmpService.KMPSearch(data[i], question);
+        if (exist) {
+          res.json(data[i]);
+          break;
+        }
+      }
+      break;
+  }
 });
 
 const getAllQnAs = asyncWrapper(async (_req, res) => {
@@ -53,7 +93,7 @@ const deleteQnA = asyncWrapper(async (req, res) => {
     const { question } = req.body;
     const isExist = await appService.getQuestion(question);
     if (isExist) {
-      const result = await appService.deleteQuestion(question);
+      await appService.deleteQuestion(question);
       res.status(status.CREATED).json(req.body);
     } else {
       res.json(null);
@@ -65,8 +105,7 @@ const deleteQnA = asyncWrapper(async (req, res) => {
 
 module.exports = {
   createQnA,
-  getKMP,
-  getBM,
+  askQuestion,
   getAllQnAs,
   getAnswerByQuestion,
   deleteQnA,
