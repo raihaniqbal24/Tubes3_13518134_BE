@@ -19,7 +19,7 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         unique: {
           arg: true,
-          msg: 'Pertanyaan sudah ada dalam database.',
+          msg: 'Pertanyaan ini telah ada dalam basis data',
         },
         validate: {
           notEmpty: true,
@@ -38,7 +38,6 @@ module.exports = (sequelize, DataTypes) => {
       modelName: 'Dictionary',
       tableName: 'dictionary',
       underscored: true,
-      timestamps: true,
     },
   );
   return Dictionary;
