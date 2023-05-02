@@ -6,7 +6,7 @@ const appValidator = require('../../../validators/app.validator');
 const router = express.Router();
 
 router
-  .route('/:question')
+  .route('/question')
   .post(
     validate(appValidator.getAnswerByQuestion),
     appController.getAnswerByQuestion,

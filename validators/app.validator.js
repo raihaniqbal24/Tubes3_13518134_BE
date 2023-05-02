@@ -1,7 +1,7 @@
 const Joi = require('joi');
 
 const getAnswerByQuestion = {
-  params: Joi.object({
+  body: Joi.object({
     question: Joi.string().required(),
   }),
 };

@@ -8,13 +8,19 @@ const consoleLogFormat = winston.format.combine(
     format: 'YYYY-MM-DD HH:mm:ss',
   }),
   winston.format.printf((info) =>
-    colorizer.colorize(info.level, `[${info.timestamp}] ${info.level.toUpperCase()} - ${info.message}`),
+    colorizer.colorize(
+      info.level,
+      `[${info.timestamp}] ${info.level.toUpperCase()} - ${info.message}`,
+    ),
   ),
 );
 const fileLogFormat = winston.format.combine(
   winston.format.uncolorize(),
   winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
-  winston.format.printf((info) => `[${info.timestamp}] ${info.level.toUpperCase()} - ${info.message}`),
+  winston.format.printf(
+    (info) =>
+      `[${info.timestamp}] ${info.level.toUpperCase()} - ${info.message}`,
+  ),
 );
 
 const logger = winston.createLogger({

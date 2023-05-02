@@ -36,7 +36,8 @@ const getAllQnAs = asyncWrapper(async (_req, res) => {
 });
 
 const getAnswerByQuestion = asyncWrapper(async (req, res) => {
-  const user = await appService.getQuestion(req.params.id);
+  const { question } = req.body;
+  const user = await appService.getQuestion(question);
   res.json(user);
 });
 
