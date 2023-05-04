@@ -48,9 +48,22 @@ const checkDate = (text) => {
     return type;
   }
 
-console.log(questionType("halo"));
-console.log(questionType("halo world"));
-console.log(questionType("20/12/2022"));
-console.log(questionType("20/12/2022 hari apa ini?"));
-console.log(questionType("20+3/(6-9)"));
-console.log(questionType("apa hasil dari 10 + 10?"));
+  function checkType(input) {
+    const mathRegex = /^.*[\d+\-*/().\s]+$/;
+    const dateRegex = /^.*\d{1,2}\/\d{1,2}\/\d{4}.*$/;
+    
+    if (dateRegex.exec(input)) {
+      return "date";
+    } else if (mathRegex.exec(input)) {
+      return "math equation";
+    } else {
+      return "text";
+    }
+  }
+
+console.log(checkType("halo"));
+console.log(checkType("halo world"));
+console.log(checkType("20/12/2022"));
+console.log(checkType("20/12/2022 hari apa ini?"));
+console.log(checkType("20+3/(6-9)"));
+console.log(checkType("apa hasil dari 10 + 10?"));
