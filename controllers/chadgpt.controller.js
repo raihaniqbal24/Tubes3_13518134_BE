@@ -44,12 +44,9 @@ function questionType(text) {
 
 const askQuestion = asyncWrapper(async (req, res) => {
   const data = await appService.getAllQuestions();
-  const { question, algo } = req.body;
-  console.log(question);
+  const { qst, algo } = req.params;
 
-  // TODO: parse question buat nentuin pake apa
-  const whatToDo = questionType(question);
-  console.log(whatToDo);
+  const whatToDo = questionType(qst);
   let result;
 
   switch (whatToDo) {
@@ -59,7 +56,7 @@ const askQuestion = asyncWrapper(async (req, res) => {
         // KMP Search
         console.log('analisis pake kmp');
         for (let i = 1; i <= data.length; i += 1) {
-          const exist = kmpService.KMPSearch(data[i].question, question);
+          const exist = kmpService.KMPSearch(data[i].question, qst);
           if (exist > -1) {
             res.json(data[i]);
             break;
@@ -68,7 +65,7 @@ const askQuestion = asyncWrapper(async (req, res) => {
       } else {
         // BM Search
         for (let i = 1; i <= data.length; i += 1) {
-          const exist = bmService.BMSearch(data[i].question, question);
+          const exist = bmService.BMSearch(data[i].question, qst);
           if (exist) {
             res.json(data[i]);
             break;
@@ -77,11 +74,11 @@ const askQuestion = asyncWrapper(async (req, res) => {
       }
       break;
     case 'calculation':
-      result = appService.calculateNumber(question);
+      result = appService.calculateNumber(qst);
       res.json(result);
       break;
     case 'dayFromDate':
-      const extracted = question;
+      const extracted = qst;
       result = appService.getDayFromDate(extracted);
       console.log(result);
       res.json(result);
@@ -89,7 +86,7 @@ const askQuestion = asyncWrapper(async (req, res) => {
     default:
       // KMP Search
       for (let i = 1; i <= data.length; i += 1) {
-        const exist = kmpService.KMPSearch(data[i], question);
+        const exist = kmpService.KMPSearch(data[i], qst);
         if (exist) {
           res.json(data[i]);
           break;

@@ -9,9 +9,7 @@ router
   .route('/question/add')
   .post(validate(chadgptValidator.createQuestion), chadgptController.createQnA);
 
-router
-  .route('/ask')
-  .get(validate(chadgptValidator.askAQuestion), chadgptController.askQuestion);
+router.route('/ask/:algo/:qst').get(chadgptController.askQuestion);
 
 router.route('/all').get(chadgptController.getAllQnAs);
 
