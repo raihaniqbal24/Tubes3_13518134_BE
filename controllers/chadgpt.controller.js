@@ -59,8 +59,8 @@ const askQuestion = asyncWrapper(async (req, res) => {
         // KMP Search
         console.log('analisis pake kmp');
         for (let i = 1; i <= data.length; i += 1) {
-          const exist = kmpService.KMPSearch(data[i], question);
-          if (exist) {
+          const exist = kmpService.KMPSearch(data[i].question, question);
+          if (exist > -1) {
             res.json(data[i]);
             break;
           }
@@ -68,7 +68,7 @@ const askQuestion = asyncWrapper(async (req, res) => {
       } else {
         // BM Search
         for (let i = 1; i <= data.length; i += 1) {
-          const exist = bmService.BMSearch(data[i], question);
+          const exist = bmService.BMSearch(data[i].question, question);
           if (exist) {
             res.json(data[i]);
             break;

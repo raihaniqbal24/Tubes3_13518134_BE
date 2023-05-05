@@ -1,89 +1,58 @@
-const httpStatus = require('http-status');
-const { User } = require('../models');
-const ApiError = require('../utils/ApiError');
+/* eslint-disable no-else-return */
+const NUMBER_OF_CHARS = 128;
 
-/**
- * Create a user
- * @param {Object} userBody
- * @returns {Promise<User>}
- */
-const createUser = async (userBody) => {
-  if (await User.isEmailTaken(userBody.email)) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'Email already taken');
+function min(a, b) {
+  if (a < b) {
+    return a;
   }
-  return User.create(userBody);
-};
+  return b;
+}
 
-/**
- * Query for users
- * @param {Object} filter - Mongo filter
- * @param {Object} options - Query options
- * @param {string} [options.sortBy] - Sort option in the format: sortField:(desc|asc)
- * @param {number} [options.limit] - Maximum number of results per page (default = 10)
- * @param {number} [options.page] - Current page (default = 1)
- * @returns {Promise<QueryResult>}
- */
-const queryUsers = async (filter, options) => {
-  const users = await User.paginate(filter, options);
-  return users;
-};
-
-/**
- * Get user by id
- * @param {ObjectId} id
- * @returns {Promise<User>}
- */
-const getUserById = async (id) => {
-  return User.findById(id);
-};
-
-/**
- * Get user by email
- * @param {string} email
- * @returns {Promise<User>}
- */
-const getUserByEmail = async (email) => {
-  return User.findOne({ email });
-};
-
-/**
- * Update user by id
- * @param {ObjectId} userId
- * @param {Object} updateBody
- * @returns {Promise<User>}
- */
-const updateUserById = async (userId, updateBody) => {
-  const user = await getUserById(userId);
-  if (!user) {
-    throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
+function buildLast(pat) {
+  const last = [];
+  const patLength = pat.length;
+  for (let i = 0; i < NUMBER_OF_CHARS; i++) {
+    last[i] = -1;
   }
-  if (updateBody.email && (await User.isEmailTaken(updateBody.email, userId))) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'Email already taken');
+  for (let i = 0; i < patLength; i++) {
+    last[pat.charAt(i)] = i;
   }
-  Object.assign(user, updateBody);
-  await user.save();
-  return user;
-};
 
-/**
- * Delete user by id
- * @param {ObjectId} userId
- * @returns {Promise<User>}
- */
-const deleteUserById = async (userId) => {
-  const user = await getUserById(userId);
-  if (!user) {
-    throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
+  return last;
+}
+
+function BMSearch(txt, pat) {
+  const patLength = pat.length;
+  const txtLength = txt.length;
+
+  let last = [];
+  let i = patLength - 1;
+  let j = patLength - 1;
+
+  last = buildLast(pat);
+
+  if (i > txtLength - 1) {
+    return -1;
   }
-  await user.remove();
-  return user;
-};
+
+  do {
+    if (pat.charAt(j) === txt.charAt(i)) {
+      if (j === 0) {
+        return i;
+      } else {
+        i--;
+        j--;
+      }
+    } else {
+      const lo = last[txt.charAt(i)];
+      i = i + patLength - min(j, 1 + lo);
+      j = patLength - 1;
+    }
+  } while (i <= txtLength - 1);
+
+  return -1;
+}
 
 module.exports = {
-  createUser,
-  queryUsers,
-  getUserById,
-  getUserByEmail,
-  updateUserById,
-  deleteUserById,
+  BMSearch,
 };

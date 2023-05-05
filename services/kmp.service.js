@@ -1,89 +1,53 @@
-const httpStatus = require('http-status');
-const { User } = require('../models');
-const ApiError = require('../utils/ApiError');
+function computeBorder(pat) {
+  const border = [];
+  const patLength = pat.length;
+  let i = 1;
+  let j = 0;
+  border[0] = 0;
 
-/**
- * Create a user
- * @param {Object} userBody
- * @returns {Promise<User>}
- */
-const createUser = async (userBody) => {
-  if (await User.isEmailTaken(userBody.email)) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'Email already taken');
+  while (i < patLength) {
+    if (pat.charAt(j) === pat.charAt(i)) {
+      border[i] = j + 1;
+      i++;
+      j++;
+    } else if (j > 0) {
+      j = border[j - 1];
+    } else {
+      border[i] = 0;
+      i++;
+    }
   }
-  return User.create(userBody);
-};
 
-/**
- * Query for users
- * @param {Object} filter - Mongo filter
- * @param {Object} options - Query options
- * @param {string} [options.sortBy] - Sort option in the format: sortField:(desc|asc)
- * @param {number} [options.limit] - Maximum number of results per page (default = 10)
- * @param {number} [options.page] - Current page (default = 1)
- * @returns {Promise<QueryResult>}
- */
-const queryUsers = async (filter, options) => {
-  const users = await User.paginate(filter, options);
-  return users;
-};
+  return border;
+}
 
-/**
- * Get user by id
- * @param {ObjectId} id
- * @returns {Promise<User>}
- */
-const getUserById = async (id) => {
-  return User.findById(id);
-};
+function KMPSearch(txt, pat) {
+  const patLength = pat.length;
+  const txtLength = txt.length;
 
-/**
- * Get user by email
- * @param {string} email
- * @returns {Promise<User>}
- */
-const getUserByEmail = async (email) => {
-  return User.findOne({ email });
-};
+  let border = [];
 
-/**
- * Update user by id
- * @param {ObjectId} userId
- * @param {Object} updateBody
- * @returns {Promise<User>}
- */
-const updateUserById = async (userId, updateBody) => {
-  const user = await getUserById(userId);
-  if (!user) {
-    throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
+  border = computeBorder(pat);
+
+  let i = 0;
+  let j = 0;
+  while (i < txtLength) {
+    if (pat.charAt(j) === txt.charAt(i)) {
+      if (j === patLength - 1) {
+        return i - patLength + 1;
+      }
+      i++;
+      j++;
+    } else if (j > 0) {
+      j = border[j - 1];
+    } else {
+      i++;
+    }
   }
-  if (updateBody.email && (await User.isEmailTaken(updateBody.email, userId))) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'Email already taken');
-  }
-  Object.assign(user, updateBody);
-  await user.save();
-  return user;
-};
 
-/**
- * Delete user by id
- * @param {ObjectId} userId
- * @returns {Promise<User>}
- */
-const deleteUserById = async (userId) => {
-  const user = await getUserById(userId);
-  if (!user) {
-    throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
-  }
-  await user.remove();
-  return user;
-};
+  return -1;
+}
 
 module.exports = {
-  createUser,
-  queryUsers,
-  getUserById,
-  getUserByEmail,
-  updateUserById,
-  deleteUserById,
+  KMPSearch,
 };
