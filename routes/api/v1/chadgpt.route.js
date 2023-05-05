@@ -11,10 +11,7 @@ router
 
 router
   .route('/ask')
-  .post(
-    validate(chadgptValidator.getAnswerByQuestion),
-    chadgptController.getAnswerByQuestion,
-  );
+  .get(validate(chadgptValidator.askAQuestion), chadgptController.askQuestion);
 
 router.route('/all').get(chadgptController.getAllQnAs);
 

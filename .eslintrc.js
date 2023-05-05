@@ -15,6 +15,7 @@ module.exports = {
     semi: ['error', 'always'],
     'import/no-dynamic-require': 'off',
     'no-underscore-dangle': 'off',
+    'no-case-declarations': 'off',
     'no-param-reassign': 'off',
     'no-await-in-loop': 'off',
     'linebreak-style': 'off',

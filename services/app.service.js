@@ -7,6 +7,8 @@ const ApiError = require('../utils/ApiError');
 
 const { Dictionary } = db;
 
+moment.locale();
+
 /**
  * Prerequisite: user data has already been sanitized and validated
  */
@@ -72,8 +74,12 @@ const calculateNumber = async (question) => {
 };
 
 const getDayFromDate = async (question) => {
-  const day = moment(question, 'dddd', 'id');
-  return `Hari ${day}`;
+  const date = moment(question, 'MM/DD/YYYY');
+  console.log(date);
+  const day = moment(date).format('dddd');
+  console.log(day);
+  // const res = { question: day };
+  return day;
 };
 
 module.exports = {

@@ -28,54 +28,51 @@ const createQnA = asyncWrapper(async (req, res) => {
 });
 
 function questionType(text) {
-  
   let type = 'text';
 
-  const calculation_regex = /^.*[\d+\-*/().\s]+$/;
-  const date_regex = /^.*\d{1,2}\/\d{1,2}\/\d{4}.*$/;
-  
-  if (date_regex.exec(text)) {
-    type =  "dayFromDate";
-  } 
-  else if (calculation_regex.exec(text)) {
-    type = "calculation";
-  } 
+  const calculationRegex = /^.*[\d+\-*/().\s]+$/;
+  const dateRegex = /^.*\d{1,2}\/\d{1,2}\/\d{4}.*$/;
+
+  if (dateRegex.exec(text)) {
+    type = 'dayFromDate';
+  } else if (calculationRegex.exec(text)) {
+    type = 'calculation';
+  }
 
   return type;
-
 }
 
 const askQuestion = asyncWrapper(async (req, res) => {
   const data = await appService.getAllQuestions();
-  const { question } = req.body;
+  const { question, algo } = req.body;
+  console.log(question);
 
   // TODO: parse question buat nentuin pake apa
-
   const whatToDo = questionType(question);
+  console.log(whatToDo);
   let result;
 
-  if(whatToDo === 'text'){
-    // TODO: read algo request
-  }
-
   switch (whatToDo) {
-    case 'kmp':
-      // KMP Search
-      for (let i = 1; i <= data.length; i += 1) {
-        const exist = kmpService.KMPSearch(data[i], question);
-        if (exist) {
-          res.json(data[i]);
-          break;
+    case 'text':
+      console.log('case text');
+      if (algo === 'kmp') {
+        // KMP Search
+        console.log('analisis pake kmp');
+        for (let i = 1; i <= data.length; i += 1) {
+          const exist = kmpService.KMPSearch(data[i], question);
+          if (exist) {
+            res.json(data[i]);
+            break;
+          }
         }
-      }
-      break;
-    case 'bm':
-      // BM Search
-      for (let i = 1; i <= data.length; i += 1) {
-        const exist = bmService.BMSearch(data[i], question);
-        if (exist) {
-          res.json(data[i]);
-          break;
+      } else {
+        // BM Search
+        for (let i = 1; i <= data.length; i += 1) {
+          const exist = bmService.BMSearch(data[i], question);
+          if (exist) {
+            res.json(data[i]);
+            break;
+          }
         }
       }
       break;
@@ -84,7 +81,9 @@ const askQuestion = asyncWrapper(async (req, res) => {
       res.json(result);
       break;
     case 'dayFromDate':
-      result = appService.getDayFromDate(question);
+      const extracted = question;
+      result = appService.getDayFromDate(extracted);
+      console.log(result);
       res.json(result);
       break;
     default:

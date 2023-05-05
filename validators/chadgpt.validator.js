@@ -13,6 +13,13 @@ const getAnswerByQuestion = {
   }),
 };
 
+const askAQuestion = {
+  body: Joi.object({
+    question: Joi.string().required(),
+    algo: Joi.string().required(),
+  }),
+};
+
 const deleteQuestion = {
   body: Joi.object({
     question: Joi.string().required(),
@@ -22,5 +29,6 @@ const deleteQuestion = {
 module.exports = {
   createQuestion,
   getAnswerByQuestion,
+  askAQuestion,
   deleteQuestion,
 };
